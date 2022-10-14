@@ -46,7 +46,7 @@ class G4Event;
 class B4PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-  B4PrimaryGeneratorAction();    
+  B4PrimaryGeneratorAction(G4String particle, G4double energy);    
   virtual ~B4PrimaryGeneratorAction();
 
   virtual void GeneratePrimaries(G4Event* event);

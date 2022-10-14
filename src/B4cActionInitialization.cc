@@ -34,9 +34,15 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B4cActionInitialization::B4cActionInitialization()
+B4cActionInitialization::B4cActionInitialization(G4String particle, G4double energy, G4String output, G4int number)
  : G4VUserActionInitialization()
-{}
+{
+  m_particle = particle;
+  m_energy = energy;
+  m_output = output;
+  m_RunNumber = number;
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -47,16 +53,17 @@ B4cActionInitialization::~B4cActionInitialization()
 
 void B4cActionInitialization::BuildForMaster() const
 {
-  SetUserAction(new B4RunAction);
+  SetUserAction(new B4RunAction(m_output, m_RunNumber));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B4cActionInitialization::Build() const
 {
-  SetUserAction(new B4PrimaryGeneratorAction);
-  SetUserAction(new B4RunAction);
-  SetUserAction(new B4cEventAction);
+  SetUserAction(new B4PrimaryGeneratorAction(m_particle, m_energy));
+  SetUserAction(new B4RunAction(m_output, m_RunNumber));
+  SetUserAction(new B4cEventAction(m_output, m_RunNumber));
+
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

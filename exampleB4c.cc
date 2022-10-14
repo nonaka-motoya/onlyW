@@ -41,6 +41,8 @@
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
+#include "G4SystemOfUnits.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 namespace {
@@ -65,12 +67,25 @@ int main(int argc,char** argv)
   
   G4String macro;
   G4String session;
+
+  // -- add ---
+  G4double energy = 100.*GeV;
+  G4String particle = "mu-";
+  G4String output = "output_default.root";
+  G4int number = 1;
+  // ------
+
+
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
   for ( G4int i=1; i<argc; i=i+2 ) {
     if      ( G4String(argv[i]) == "-m" ) macro = argv[i+1];
     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
+    else if ( G4String(argv[i]) == "-O" ) output = argv[i+1];
+    else if ( G4String(argv[i]) == "-E" ) energy = G4UIcommand::ConvertToDouble(argv[i+1]) * GeV;
+    else if ( G4String(argv[i]) == "-P" ) particle = argv[i+1];
+
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
       nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -111,7 +126,7 @@ int main(int argc,char** argv)
   auto physicsList = new FTFP_BERT;
   runManager->SetUserInitialization(physicsList);
     
-  auto actionInitialization = new B4cActionInitialization();
+  auto actionInitialization = new B4cActionInitialization(particle, energy, output, number);
   runManager->SetUserInitialization(actionInitialization);
   
   // Initialize visualization

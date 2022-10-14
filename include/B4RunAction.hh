@@ -55,8 +55,12 @@ class G4Run;
 
 class B4RunAction : public G4UserRunAction
 {
+  private:
+    G4String m_output;
+    G4int m_RunNumber;
+
   public:
-    B4RunAction();
+    B4RunAction(G4String output, G4int RunNumber);
     virtual ~B4RunAction();
 
     virtual void BeginOfRunAction(const G4Run*);

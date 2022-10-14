@@ -31,14 +31,22 @@
 #define B4cActionInitialization_h 1
 
 #include "G4VUserActionInitialization.hh"
+#include "G4UIExecutive.hh"
+
 
 /// Action initialization class.
 ///
 
 class B4cActionInitialization : public G4VUserActionInitialization
 {
+  private:
+    G4String m_particle;
+    G4double m_energy;
+    G4String m_output;
+    G4int m_RunNumber;
+
   public:
-    B4cActionInitialization();
+    B4cActionInitialization(G4String particle, G4double energy, G4String output, G4int number);
     virtual ~B4cActionInitialization();
 
     virtual void BuildForMaster() const;

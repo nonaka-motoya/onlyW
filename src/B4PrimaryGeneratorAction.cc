@@ -42,20 +42,23 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B4PrimaryGeneratorAction::B4PrimaryGeneratorAction()
+B4PrimaryGeneratorAction::B4PrimaryGeneratorAction(G4String particle, G4double energy)
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr)
 {
   G4int nofParticles = 1;
   fParticleGun = new G4ParticleGun(nofParticles);
 
+  double randEnergy = (G4UniformRand()*(1000-1) + 1)*GeV;
+
+
   // default particle kinematic
   //
   auto particleDefinition 
-    = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+    = G4ParticleTable::GetParticleTable()->FindParticle(particle);
   fParticleGun->SetParticleDefinition(particleDefinition);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
-  fParticleGun->SetParticleEnergy(50.*MeV);
+  fParticleGun->SetParticleEnergy(randEnergy);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

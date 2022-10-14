@@ -63,13 +63,46 @@ class B4cCalorHit : public G4VHit
     // methods to handle data
     void Add(G4double de, G4double dl);
 
-    // get methods
-    G4double GetEdep() const;
-    G4double GetTrackLength() const;
+    // SET & GET methods
+
+    void SetTrackID(G4int trkid) { this -> m_trkid = trkid; }
+    G4int GetTrackID() { return this -> m_trkid; }
+
+    void SetParticle(G4String particle) { this -> m_particle = particle; }
+    G4String GetParticle() { return this -> m_particle; }
+
+    void SetPosition(G4ThreeVector position) { this -> m_position = position; }
+    G4ThreeVector GetPosition() { return this -> m_position; }
+
+    void SetMomentum(G4double mom) { this -> m_mom = mom; }
+    G4double GetMomentum() { return this -> m_mom; }
+
+    void SetThX(G4double thX) { this -> m_thX = thX; }
+    G4double GetThX() { return this -> m_thX; }
+    
+    void SetThY(G4double thY) { this -> m_thY = thY; }
+    G4double GetThY() { return this -> m_thY; }
+
+    void SetProcess(G4String proc) { this -> m_process = proc; } 
+    G4String GetProccess() { return this -> m_process; }
+
+    void SetParent(G4int parent) { this -> m_parent = parent; }
+    G4int GetParent() { return this -> m_parent; }
+
+    void SetCreatorproc(G4String creatorproc) { this -> m_creatorproc = creatorproc; }
+    G4String GetCreatorproc() { return this -> m_creatorproc; }
+
       
   private:
-    G4double fEdep;        ///< Energy deposit in the sensitive volume
-    G4double fTrackLength; ///< Track length in the  sensitive volume
+    G4int m_trkid;
+    G4String m_particle;
+    G4ThreeVector m_position;
+    G4double m_mom;
+    G4double m_thX;
+    G4double m_thY;
+    G4String m_process;
+    G4int m_parent;
+    G4String m_creatorproc;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -98,18 +131,6 @@ inline void B4cCalorHit::operator delete(void *hit)
   B4cCalorHitAllocator->FreeSingle((B4cCalorHit*) hit);
 }
 
-inline void B4cCalorHit::Add(G4double de, G4double dl) {
-  fEdep += de; 
-  fTrackLength += dl;
-}
-
-inline G4double B4cCalorHit::GetEdep() const { 
-  return fEdep; 
-}
-
-inline G4double B4cCalorHit::GetTrackLength() const { 
-  return fTrackLength; 
-}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

@@ -41,9 +41,12 @@
 #include "Randomize.hh"
 #include <iomanip>
 
+#include "G4SystemOfUnits.hh"
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B4cEventAction::B4cEventAction()
+B4cEventAction::B4cEventAction(G4String output, G4int RunNumber)
  : G4UserEventAction(),
    fAbsHCID(-1),
    fGapHCID(-1)
@@ -113,11 +116,9 @@ void B4cEventAction::EndOfEventAction(const G4Event* event)
 
   // Get hits collections
   auto absoHC = GetHitsCollection(fAbsHCID, event);
-  auto gapHC = GetHitsCollection(fGapHCID, event);
 
   // Get hit with total values
   auto absoHit = (*absoHC)[absoHC->entries()-1];
-  auto gapHit = (*gapHC)[gapHC->entries()-1];
  
   // Print per event (modulo n)
   //
@@ -126,9 +127,6 @@ void B4cEventAction::EndOfEventAction(const G4Event* event)
   if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
     G4cout << "---> End of event: " << eventID << G4endl;     
 
-    PrintEventStatistics(
-      absoHit->GetEdep(), absoHit->GetTrackLength(),
-      gapHit->GetEdep(), gapHit->GetTrackLength());
   }  
   
   // Fill histograms, ntuple
@@ -137,18 +135,46 @@ void B4cEventAction::EndOfEventAction(const G4Event* event)
   // get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
  
-  // fill histograms
-  analysisManager->FillH1(0, absoHit->GetEdep());
-  analysisManager->FillH1(1, gapHit->GetEdep());
-  analysisManager->FillH1(2, absoHit->GetTrackLength());
-  analysisManager->FillH1(3, gapHit->GetTrackLength());
-  
-  // fill ntuple
-  analysisManager->FillNtupleDColumn(0, absoHit->GetEdep());
-  analysisManager->FillNtupleDColumn(1, gapHit->GetEdep());
-  analysisManager->FillNtupleDColumn(2, absoHit->GetTrackLength());
-  analysisManager->FillNtupleDColumn(3, gapHit->GetTrackLength());
-  analysisManager->AddNtupleRow();  
-}  
+  G4HCofThisEvent* HCTE = static_cast<G4HCofThisEvent*>( event -> GetHCofThisEvent() );
+
+  G4SDManager* sdManager = G4SDManager::GetSDMpointer(); 
+  G4int MTID = sdManager->GetCollectionID("AbsorberHitsCollection");  
+  B4cCalorHitsCollection* HC = static_cast<B4cCalorHitsCollection*>(HCTE->GetHC(MTID));
+
+  G4int evt = event -> GetEventID();
+  G4int nhits = HC -> entries();
+
+  for (G4int i=0; i<nhits; i++) {
+
+    B4cCalorHit* hit = (*HC)[i];
+
+    G4int trkid = hit -> GetTrackID();
+    G4String particle = hit -> GetParticle();
+    G4ThreeVector position = hit -> GetPosition();
+    G4double mom = hit -> GetMomentum();
+    G4double thX = hit -> GetThX();
+    G4double thY = hit -> GetThY();
+    G4String processname = hit -> GetProccess();
+    G4int parent = hit -> GetParent();
+    G4String creatorproc = hit -> GetCreatorproc();
+
+    analysisManager -> FillNtupleIColumn(0, evt);
+    analysisManager -> FillNtupleIColumn(1, nhits);
+    analysisManager -> FillNtupleIColumn(2, trkid);
+    analysisManager -> FillNtupleSColumn(3, particle);
+    analysisManager -> FillNtupleDColumn(4, position.x()/cm);
+    analysisManager -> FillNtupleDColumn(5, position.y()/cm);
+    analysisManager -> FillNtupleDColumn(6, position.z()/cm);
+    analysisManager -> FillNtupleDColumn(7, mom / GeV);
+    analysisManager -> FillNtupleDColumn(8, thX);
+    analysisManager -> FillNtupleDColumn(9, thY);
+    analysisManager -> FillNtupleSColumn(10, processname);
+    analysisManager -> FillNtupleIColumn(11, parent);
+    analysisManager -> FillNtupleSColumn(12, creatorproc);
+
+    analysisManager -> AddNtupleRow();
+
+  }
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -45,7 +45,7 @@
 class B4cEventAction : public G4UserEventAction
 {
 public:
-  B4cEventAction();
+  B4cEventAction(G4String output, G4int RunNumber);
   virtual ~B4cEventAction();
 
   virtual void  BeginOfEventAction(const G4Event* event);

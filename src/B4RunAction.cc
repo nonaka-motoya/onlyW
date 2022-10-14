@@ -37,9 +37,14 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-B4RunAction::B4RunAction()
+B4RunAction::B4RunAction(G4String output, G4int RunNumber)
  : G4UserRunAction()
 { 
+
+  m_output = output;
+  m_RunNumber = RunNumber;
+
+
   // set printing event number per each event
   G4RunManager::GetRunManager()->SetPrintProgress(1);     
 
@@ -58,21 +63,24 @@ B4RunAction::B4RunAction()
 
   // Book histograms, ntuple
   //
-  
-  // Creating histograms
-  analysisManager->CreateH1("Eabs","Edep in absorber", 100, 0., 800*MeV);
-  analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 100*MeV);
-  analysisManager->CreateH1("Labs","trackL in absorber", 100, 0., 1*m);
-  analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
-
   // Creating ntuple
   //
-  analysisManager->CreateNtuple("B4", "Edep and TrackL");
-  analysisManager->CreateNtupleDColumn("Eabs");
-  analysisManager->CreateNtupleDColumn("Egap");
-  analysisManager->CreateNtupleDColumn("Labs");
-  analysisManager->CreateNtupleDColumn("Lgap");
+  analysisManager->CreateNtuple("tree", "segment information");
+  analysisManager->CreateNtupleIColumn("event");
+  analysisManager->CreateNtupleIColumn("nhits");
+  analysisManager->CreateNtupleIColumn("trkid");
+  analysisManager->CreateNtupleSColumn("particle");
+  analysisManager->CreateNtupleDColumn("posX");
+  analysisManager->CreateNtupleDColumn("posY");
+  analysisManager->CreateNtupleDColumn("posZ");
+  analysisManager->CreateNtupleDColumn("mom");
+  analysisManager->CreateNtupleDColumn("thX");
+  analysisManager->CreateNtupleDColumn("thY");
+  analysisManager->CreateNtupleSColumn("process");
+  analysisManager->CreateNtupleIColumn("parent");
+  analysisManager->CreateNtupleSColumn("creatorproc");
   analysisManager->FinishNtuple();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -28,11 +28,19 @@
 /// \brief Implementation of the B4cCalorimeterSD class
 
 #include "B4cCalorimeterSD.hh"
+#include "B4cCalorHit.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
+
+#include "G4Track.hh"
+#include "G4VProcess.hh"
+#include "G4HCtable.hh"
+#include "G4VTouchable.hh"
+#include "G4SystemOfUnits.hh"
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -66,11 +74,6 @@ void B4cCalorimeterSD::Initialize(G4HCofThisEvent* hce)
     = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   hce->AddHitsCollection( hcID, fHitsCollection ); 
 
-  // Create hits
-  // fNofCells for cells + one more for total sums 
-  for (G4int i=0; i<fNofCells+1; i++ ) {
-    fHitsCollection->insert(new B4cCalorHit());
-  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -78,39 +81,48 @@ void B4cCalorimeterSD::Initialize(G4HCofThisEvent* hce)
 G4bool B4cCalorimeterSD::ProcessHits(G4Step* step, 
                                      G4TouchableHistory*)
 {  
-  // energy deposit
-  auto edep = step->GetTotalEnergyDeposit();
-  
-  // step length
-  G4double stepLength = 0.;
-  if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
-    stepLength = step->GetStepLength();
+  B4cCalorHit* newHit = new B4cCalorHit();
+
+  G4ThreeVector post_position = step -> GetPostStepPoint() -> GetPosition(); // position in mm
+  G4ThreeVector displace = step -> GetDeltaPosition();
+
+
+  G4Track* track = step -> GetTrack();
+
+  G4int trkid = track -> GetTrackID();
+  G4String particle = track -> GetDynamicParticle() -> GetParticleDefinition() -> GetParticleName();
+  G4int parent = track -> GetParentID();
+
+  G4ThreeVector momentum = track -> GetMomentum();
+  G4double total_momentum = momentum.mag();
+  G4double thX = atan(displace.x() / displace.z());
+  G4double thY = atan(displace.y() / displace.z());
+
+  const G4VProcess* process = step -> GetPostStepPoint() -> GetProcessDefinedStep();
+  G4String processname = process -> GetProcessName();
+
+  G4String creatorProcName;
+  if (parent > 0) {
+    creatorProcName = step -> GetTrack() -> GetCreatorProcess() -> GetProcessName();
+  } else {
+    creatorProcName = "";
   }
 
-  if ( edep==0. && stepLength == 0. ) return false;      
 
-  auto touchable = (step->GetPreStepPoint()->GetTouchable());
-    
-  // Get calorimeter cell id 
-  auto layerNumber = touchable->GetReplicaNumber(1);
-  
-  // Get hit accounting data for this cell
-  auto hit = (*fHitsCollection)[layerNumber];
-  if ( ! hit ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot access hit " << layerNumber; 
-    G4Exception("B4cCalorimeterSD::ProcessHits()",
-      "MyCode0004", FatalException, msg);
-  }         
 
-  // Get hit for total accounting
-  auto hitTotal 
-    = (*fHitsCollection)[fHitsCollection->entries()-1];
-  
-  // Add values
-  hit->Add(edep, stepLength);
-  hitTotal->Add(edep, stepLength); 
-      
+  // set CalorHit
+  newHit -> SetTrackID(trkid);
+  newHit -> SetParticle(particle);
+  newHit -> SetPosition(post_position);
+  newHit -> SetMomentum(total_momentum);
+  newHit -> SetThX(thX);
+  newHit -> SetThY(thY);
+  newHit -> SetProcess(processname);
+  newHit -> SetParent(parent);
+  newHit -> SetCreatorproc(creatorProcName);
+
+  fHitsCollection -> insert(newHit);
+ 
   return true;
 }
 

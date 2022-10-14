@@ -84,7 +84,7 @@ void B4cDetectorConstruction::DefineMaterials()
 { 
   // Lead material defined using NIST Manager
   auto nistManager = G4NistManager::Instance();
-  nistManager->FindOrBuildMaterial("G4_Pb");
+  nistManager->FindOrBuildMaterial("G4_W");
   
   // Liquid argon material
   G4double a;  // mass of a mole;
@@ -106,19 +106,19 @@ void B4cDetectorConstruction::DefineMaterials()
 G4VPhysicalVolume* B4cDetectorConstruction::DefineVolumes()
 {
   // Geometry parameters
-  fNofLayers = 10;
-  G4double absoThickness = 10.*mm;
+  fNofLayers = 1;
+  G4double absoThickness = 100.*mm;
   G4double gapThickness =  5.*mm;
   G4double calorSizeXY  = 10.*cm;
 
-  auto layerThickness = absoThickness + gapThickness;
+  auto layerThickness = absoThickness;
   auto calorThickness = fNofLayers * layerThickness;
   auto worldSizeXY = 1.2 * calorSizeXY;
   auto worldSizeZ  = 1.2 * calorThickness; 
   
   // Get materials
   auto defaultMaterial = G4Material::GetMaterial("Galactic");
-  auto absorberMaterial = G4Material::GetMaterial("G4_Pb");
+  auto absorberMaterial = G4Material::GetMaterial("G4_W");
   auto gapMaterial = G4Material::GetMaterial("liquidArgon");
   
   if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial ) {
@@ -219,29 +219,6 @@ G4VPhysicalVolume* B4cDetectorConstruction::DefineVolumes()
                  0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
 
-  //                               
-  // Gap
-  //
-  auto gapS 
-    = new G4Box("Gap",             // its name
-                 calorSizeXY/2, calorSizeXY/2, gapThickness/2); // its size
-                         
-  auto gapLV
-    = new G4LogicalVolume(
-                 gapS,             // its solid
-                 gapMaterial,      // its material
-                 "GapLV");         // its name
-                                   
-  new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0., absoThickness/2), // its position
-                 gapLV,            // its logical volume                         
-                 "Gap",            // its name
-                 layerLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
- 
   //
   // print parameters
   //
@@ -259,9 +236,12 @@ G4VPhysicalVolume* B4cDetectorConstruction::DefineVolumes()
   //
   worldLV->SetVisAttributes (G4VisAttributes::GetInvisible());
 
-  auto simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  auto simpleBoxVisAtt= new G4VisAttributes(G4Colour(0,1.0,1.0));
   simpleBoxVisAtt->SetVisibility(true);
-  calorLV->SetVisAttributes(simpleBoxVisAtt);
+  // calorLV->SetVisAttributes(simpleBoxVisAtt);
+
+  absorberLV -> SetVisAttributes(simpleBoxVisAtt);
+
 
   //
   // Always return the physical World
@@ -283,10 +263,6 @@ void B4cDetectorConstruction::ConstructSDandField()
   G4SDManager::GetSDMpointer()->AddNewDetector(absoSD);
   SetSensitiveDetector("AbsoLV",absoSD);
 
-  auto gapSD 
-    = new B4cCalorimeterSD("GapSD", "GapHitsCollection", fNofLayers);
-  G4SDManager::GetSDMpointer()->AddNewDetector(gapSD);
-  SetSensitiveDetector("GapLV",gapSD);
 
   // 
   // Magnetic field
