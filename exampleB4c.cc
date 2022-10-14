@@ -60,7 +60,7 @@ int main(int argc,char** argv)
 {
   // Evaluate arguments
   //
-  if ( argc > 7 ) {
+  if ( argc > 19 ) {
     PrintUsage();
     return 1;
   }
