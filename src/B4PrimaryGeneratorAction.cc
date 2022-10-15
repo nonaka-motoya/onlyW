@@ -98,6 +98,11 @@ void B4PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4Exception("B4PrimaryGeneratorAction::GeneratePrimaries()",
       "MyCode0002", JustWarning, msg);
   } 
+
+
+
+  double randEnergy = (G4UniformRand()*(1000-1) + 1)*GeV;
+  fParticleGun->SetParticleEnergy(randEnergy);
   
   // Set gun position
   fParticleGun

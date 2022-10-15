@@ -73,6 +73,7 @@ int main(int argc,char** argv)
   G4String particle = "mu-";
   G4String output = "output_default.root";
   G4int number = 1;
+  G4int RandomSeed = 12345678;
   // ------
 
 
@@ -85,6 +86,8 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-O" ) output = argv[i+1];
     else if ( G4String(argv[i]) == "-E" ) energy = G4UIcommand::ConvertToDouble(argv[i+1]) * GeV;
     else if ( G4String(argv[i]) == "-P" ) particle = argv[i+1];
+    else if ( G4String(argv[i]) == "-N" ) number   = G4UIcommand::ConvertToInt(argv[i+1]);
+    else if ( G4String(argv[i]) == "-R" ) RandomSeed = G4UIcommand::ConvertToInt(argv[i+1]);
 
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
@@ -96,6 +99,14 @@ int main(int argc,char** argv)
       return 1;
     }
   }  
+
+
+  // random seed
+  CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
+  //set random seed with system time
+
+  CLHEP::HepRandom::setTheSeed(RandomSeed);
+   
   
   // Detect interactive mode (if no macro provided) and define UI session
   //
