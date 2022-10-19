@@ -102,7 +102,7 @@ void B4RunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   // Open an output file
   //
-  G4String fileName = "B4";
+  G4String fileName = m_output;
   analysisManager->OpenFile(fileName);
 }
 

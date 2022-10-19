@@ -83,7 +83,7 @@ G4bool B4cCalorimeterSD::ProcessHits(G4Step* step,
 {  
   B4cCalorHit* newHit = new B4cCalorHit();
 
-  G4ThreeVector post_position = step -> GetPostStepPoint() -> GetPosition(); // position in mm
+  G4ThreeVector pre_position = step -> GetPreStepPoint() -> GetPosition(); // position in mm
   G4ThreeVector displace = step -> GetDeltaPosition();
 
 
@@ -93,7 +93,7 @@ G4bool B4cCalorimeterSD::ProcessHits(G4Step* step,
   G4String particle = track -> GetDynamicParticle() -> GetParticleDefinition() -> GetParticleName();
   G4int parent = track -> GetParentID();
 
-  G4ThreeVector momentum = track -> GetMomentum();
+  G4ThreeVector momentum = step -> GetPreStepPoint() -> GetMomentum();
   G4double total_momentum = momentum.mag();
   G4double thX = atan(displace.x() / displace.z());
   G4double thY = atan(displace.y() / displace.z());
@@ -113,7 +113,7 @@ G4bool B4cCalorimeterSD::ProcessHits(G4Step* step,
   // set CalorHit
   newHit -> SetTrackID(trkid);
   newHit -> SetParticle(particle);
-  newHit -> SetPosition(post_position);
+  newHit -> SetPosition(pre_position);
   newHit -> SetMomentum(total_momentum);
   newHit -> SetThX(thX);
   newHit -> SetThY(thY);
